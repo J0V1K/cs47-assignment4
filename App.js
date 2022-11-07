@@ -1,20 +1,32 @@
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet, SafeAreaView, Text, Pressable, Image, FlatList } from "react-native";
 import { useSpotifyAuth } from "./utils";
 import { Images, Themes } from "./assets/Themes";
 import MusicItem from "./MusicList";
+import SongScreen from "./MusicItem";
+import SongPreview from "./MusicPreview";
 
-export default function App() {
+const Stack = createStackNavigator();
 
-  // Pass in true to useSpotifyAuth to use the album ID (in env.js) instead of top tracks
-  // token: Boolean - authenticated or not
-  // tracks: [{}] - tracks
-  // getSpotifyAuth - function that logs you in to Spotify. Changes token to true and fills your tracks
+const renderMusicItem = ({ item }, navigation) => {
+  return(
+  // FlatList data={tracks}
+  // again, use flatlist, this is just for demo. Also make two seperate files for list and auth for clarity
+  <MusicItem
+    artistName={item.artists[0].name}
+    albumName={item.album.name}
+    songName={item.name}
+    albumImage={item.album.images[2].url}
+    songTime={item.duration_ms}
+    externalUrl = {item.external_urls.spotify}
+    navigation = {navigation}
+    previewUrl = {item.preview_url}
+  />
+)};
 
-  const { token, tracks, getSpotifyAuth } = useSpotifyAuth(); // static line, apart from the destructured variables we got, don't use or touch
-
-  // if taken is true, then render FlatList
-  // else, render Authentication button
-
+function HomeScreen({ navigation }) {
+  const { token, tracks, getSpotifyAuth } = useSpotifyAuth();
   const AuthButton = ({authFunction}) => {
     // use pressable, button just for demo
     return (
@@ -25,18 +37,8 @@ export default function App() {
     );
   }
   
-  const renderMusicItem = ({ item, index }) => (
-    // FlatList data={tracks}
-    // again, use flatlist, this is just for demo. Also make two seperate files for list and auth for clarity
-    <MusicItem
-      artistName={item.artists[0].name}
-      albumName={item.album.name}
-      songName={item.name}
-      albumImage={item.album.images[2].url}
-      songTime={item.duration_ms}
-      id = {index + 1}
-    />
-  );
+
+  
 
   let contentDisplayed
 
@@ -45,7 +47,7 @@ export default function App() {
     contentDisplayed = (
     <FlatList
      data={tracks}
-     renderItem={(item) => renderMusicItem(item)}
+     renderItem={(item) => renderMusicItem(item, navigation)}
      keyExtractor={(item) => item.id}
     />
     )
@@ -57,9 +59,22 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* TODO: Your code goes here */}
       {contentDisplayed}
     </SafeAreaView>
+  );
+}
+
+
+export default function App() {
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} options={{headerShown: false}}/>
+        <Stack.Screen name="Song" component={SongScreen} options={{headerStyle: {backgroundColor: Themes.colors.background}, headerTitleStyle: {color: Themes.colors.spotify}}}/>
+        <Stack.Screen name="Preview" component={SongPreview} options={{headerStyle: {backgroundColor: Themes.colors.background}, headerTitleStyle: {color: Themes.colors.spotify}}}/>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 

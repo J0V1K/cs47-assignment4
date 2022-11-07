@@ -1,13 +1,28 @@
-import { StyleSheet, Text, View, Image, } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable} from 'react-native';
 import { Themes } from "./assets/Themes";
 import { millisToMinutesAndSeconds } from "./utils";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 
-export default function MusicItem({ artistName, albumName, songName, albumImage, songTime, id }) {
+export default function ScreenList({ artistName, albumName, songName, albumImage, songTime, externalUrl, previewUrl, navigation }) {
     return (
-        <View style={styles.item}>
+        <Pressable 
+        style={styles.item} 
+        onPress={() => navigation.navigate('Song', {
+            url: externalUrl
+            })
+        }
+        >
             <View style={styles.songIndex}>
-                <Text style={[styles.grayText]}>{id}</Text>
+            <Pressable 
+            style={styles.item} 
+            onPress={() => navigation.navigate('Preview', {
+                url: previewUrl
+                })
+            }
+            >
+                    <Ionicons name="play-circle" size={30} color={Themes.colors.spotify} />
+                </Pressable>
             </View>
             <Image style={styles.songImage} source={{uri:albumImage}} />
             <View style={styles.songTitle}>
@@ -20,7 +35,7 @@ export default function MusicItem({ artistName, albumName, songName, albumImage,
             <View style={styles.songTime}>
                 <Text style={styles.whiteText}>{millisToMinutesAndSeconds(songTime)}</Text>
             </View>
-        </View>
+        </Pressable>
     );
 }
 
@@ -64,11 +79,12 @@ const styles = StyleSheet.create({
         height: 64,
         margin: 10,
         alignItems: "center",
-        resizeMode: 'contain'
+        resizeMode: 'contain',
     },
     songTitle: {
         width: 100,
         alignContent: "center",
+        padding: 10,
 
     },
     songAlbum: {
